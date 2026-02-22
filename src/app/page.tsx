@@ -4,6 +4,7 @@ import { useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import Link from "next/link"; // Kayıt sayfasına yönlendirme için
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,9 +27,13 @@ export default function LoginPage() {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        // Görseldeki 'rol' alanına göre yönlendiriyoruz
+        // Mobildeki rol isimleriyle tam eşleşme kontrolü
         if (userData.rol === "Öğrenci") {
           router.push("/ogrenci");
+        } else if (userData.rol === "Akademi Sorumlusu") {
+          router.push("/akademi");
+        } else if (userData.rol === "Şirket Sorumlusu") {
+          router.push("/sirket");
         } else {
           router.push("/admin");
         }
@@ -41,50 +46,74 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f8f9fa] p-4 text-black">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-blue-800">
-            İnteraktif Staj Paneli
-          </h1>
-          <p className="text-gray-500 text-sm mt-2">
-            Lütfen bilgilerinizi girin
-          </p>
-        </div>
+    <main className="min-h-screen bg-blue-dark flex flex-col">
+      {/* 🔵 MOBİL GRADIENT HEADER */}
+      <div className="mobile-gradient-header h-[30vh] flex flex-col justify-end">
+        <p className="text-white/70 text-lg">Welcome Back,</p>
+        <h1 className="text-white text-4xl font-black tracking-tighter uppercase italic">
+          Log In!
+        </h1>
+      </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              E-posta
-            </label>
-            <input
-              type="email"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-              placeholder="ornek@mail.com"
-              onChange={(e) => setEmail(e.target.value)}
-            />
+      {/* ⚪ MOBİL SURFACE (Beyaz Alan) */}
+      <div className="mobile-surface -mt-10 flex-1">
+        <div className="max-w-md mx-auto space-y-8 py-6">
+          <div className="text-left">
+            <h2 className="text-2xl font-bold text-blue-dark">Giriş Yap</h2>
+            <p className="text-gray-text text-sm mt-1">
+              Staj sürecinizi yönetmeye devam edin.
+            </p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Şifre
-            </label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-              placeholder="••••••••"
-              onChange={(e) => setPassword(e.target.value)}
-            />
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-blue-dark/50 ml-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                className="w-full p-4 bg-surface-gray border-none rounded-[14px] text-black focus:ring-2 focus:ring-blue-primary transition outline-none"
+                placeholder="example@gmail.com"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-blue-dark/50 ml-1">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                className="w-full p-4 bg-surface-gray border-none rounded-[14px] text-black focus:ring-2 focus:ring-blue-primary transition outline-none"
+                placeholder="••••••••"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-[58px] bg-blue-primary text-white rounded-[18px] font-bold text-lg shadow-xl hover:bg-blue-dark transition-all transform active:scale-95 disabled:bg-gray-300"
+            >
+              {loading ? "Bağlanıyor..." : "Log In"}
+            </button>
+          </form>
+
+          {/* Kayıt Ol Yönlendirmesi */}
+          <div className="text-center pt-4">
+            <p className="text-gray-text text-sm">
+              Don't have an account?{" "}
+              <Link
+                href="/register"
+                className="text-blue-primary font-bold hover:underline"
+              >
+                Sign Up
+              </Link>
+            </p>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors disabled:bg-blue-300"
-          >
-            {loading ? "Bağlanıyor..." : "Giriş Yap"}
-          </button>
-        </form>
+        </div>
       </div>
     </main>
   );
