@@ -26,6 +26,7 @@ export interface Basvuru {
     | "AKADEMIK_REDDETTI"
     | "ONAYLANDI";
   tarih: any;
+  istenenBelgeler?: string[];
   akademikMotivasyon?: string;
   akademikBasvuruTarihi?: any;
 }
