@@ -17,6 +17,7 @@ export interface Basvuru {
   firmaAdi: string;
   ilanBaslik: string;
   ogrenciId: string;
+  email: string;
   motivasyon: string;
   durum:
     | "BEKLIYOR"

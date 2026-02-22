@@ -1,4 +1,4 @@
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "@/components/SidebarOgrenci";
 
 export default function OgrenciLayout({
   children,
