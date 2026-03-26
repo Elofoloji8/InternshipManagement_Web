@@ -2,98 +2,116 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { Basvuru } from "@/types";
+
+interface StajSureci {
+  id: string;
+  ogrenciAdSoyad?: string;
+  ogrenciEmail?: string;
+  ilanBaslik?: string;
+  sirketAdi?: string;
+  durum: string;
+  istenenBelgeler?: string[];
+  ogrenciBelgeUrl?: string;
+}
 
 export default function AktifStajyerlerPage() {
-  const [stajyerler, setStajyerler] = useState<Basvuru[]>([]);
+  const [stajyerler, setStajyerler] = useState<StajSureci[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const q = query(
-      collection(db, "basvurular"),
-      where("durum", "==", "ONAYLANDI"),
+      collection(db, "staj_surecleri"),
+      where("durum", "==", "TAMAMLANDI"),
     );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Basvuru[];
-      setStajyerler(data);
+    return onSnapshot(q, (sn) => {
+      setStajyerler(
+        sn.docs.map((d) => ({ id: d.id, ...d.data() } as StajSureci)),
+      );
       setLoading(false);
     });
-
-    return () => unsubscribe();
   }, []);
 
   if (loading)
     return (
-      <div className="p-10 text-center text-black italic">
-        Veriler yükleniyor...
-      </div>
+      <div className="p-10 text-center text-gray-400">Yükleniyor...</div>
     );
 
   return (
-    <div className="max-w-6xl mx-auto p-4 text-black">
+    <div className="text-black">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-blue-900 italic">
-          Aktif Stajyer Listesi 👥
+        <p className="text-gray-400 text-sm font-medium">Akademik Panel</p>
+        <h1 className="text-3xl font-black text-[#1C3FAA]">
+          Aktif Stajyerler 👥
         </h1>
-        <p className="text-gray-500 mt-2">
-          Şu an staj süreci devam eden öğrenciler ve beklenen belgeler.
+        <p className="text-gray-400 text-sm mt-1">
+          Staj süreci tamamlanan ve devam eden öğrenciler.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {stajyerler.length === 0 ? (
-          <div className="bg-white p-12 rounded-3xl border border-dashed text-center text-gray-400">
-            Henüz aktif stajı onaylanmış bir öğrenci bulunmuyor.
-          </div>
-        ) : (
-          stajyerler.map((stajyer) => (
+      {stajyerler.length === 0 ? (
+        <div className="bg-white p-12 rounded-3xl border border-dashed text-center">
+          <p className="text-4xl mb-3">👥</p>
+          <p className="text-gray-500 font-bold">
+            Henüz tamamlanmış staj bulunmuyor.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {stajyerler.map((s) => (
             <div
-              key={stajyer.id}
-              className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-wrap items-center justify-between"
+              key={s.id}
+              className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4"
             >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                  {stajyer.email?.charAt(0).toUpperCase()}
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-[#2F6FED] rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                  {(s.ogrenciAdSoyad || s.ogrenciEmail || "?")
+                    .charAt(0)
+                    .toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-gray-800">
-                    {stajyer.email}
-                  </h3>
-                  <p className="text-sm text-blue-600 font-medium">
-                    {stajyer.ilanBaslik} @ {stajyer.firmaAdi}
+                  <p className="font-bold text-gray-800">
+                    {s.ogrenciAdSoyad || s.ogrenciEmail}
+                  </p>
+                  <p className="text-sm text-[#2F6FED] font-medium">
+                    {s.ilanBaslik} @ {s.sirketAdi}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-4 md:mt-0">
-                <p className="text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">
-                  Beklenen Belgeler
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">
+                  Belgeler
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {stajyer.istenenBelgeler?.map((belge, idx) => (
+                  {s.istenenBelgeler?.map((belge, i) => (
                     <span
-                      key={idx}
+                      key={i}
                       className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-xs font-bold border border-green-100"
                     >
                       ✓ {belge}
                     </span>
                   ))}
                 </div>
+                {s.ogrenciBelgeUrl && (
+                  <a
+                    href={s.ogrenciBelgeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-[#2F6FED] font-bold hover:underline mt-2 block"
+                  >
+                    📄 Yüklenen Belgeyi Görüntüle
+                  </a>
+                )}
               </div>
 
-              <div className="mt-4 md:mt-0">
-                <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tighter">
-                  Staj Devam Ediyor
-                </span>
-              </div>
+              <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-tighter">
+                Staj Tamamlandı ✓
+              </span>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
