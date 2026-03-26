@@ -11,6 +11,7 @@ export default function SidebarSirket() {
     { name: "Yeni İlan", href: "/sirket/ilan-ekle", icon: "➕" },
     { name: "Başvurular", href: "/sirket/basvurular", icon: "📥" },
     { name: "Profil", href: "/sirket/profil", icon: "👤" },
+    { name: "Ayarlar", href: "/sirket/ayarlar", icon: "⚙️" },
   ];
 
   return (
