@@ -52,7 +52,7 @@ function DetayModal({
 }: {
   basvuru: Basvuru;
   onClose: () => void;
-  onKarar: (id: string, karar: string) => void;
+  onKarar: (id: string, karar: string, sebep?: string) => void;
 }) {
   const [showRedSebepler, setShowRedSebepler] = useState(false);
   const redSebepler = [
@@ -190,7 +190,7 @@ export default function SirketBasvurular() {
     );
   }, []);
 
-  const handleKarar = async (id: string, karar: string) => {
+  const handleKarar = async (id: string, karar: string, sebep?: string) => {
     const user = auth.currentUser;
     await updateDoc(doc(db, "basvurular", id), { durum: karar });
 
